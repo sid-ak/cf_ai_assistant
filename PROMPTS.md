@@ -76,3 +76,15 @@ export default { fetch: reqHandler };
 ---
 
 - The app.ts component is not rendering a response when a response comes back successfully. Use signals.
+
+---
+
+- I am now trying to extend the app to take input via chat or voice using Cloudflare Pages or Realtime. I understand that there are three different types of Realtime (SFU, TURN and Kit) and I understand their differences. Tell me more about how Pages can fit this requirement and more about how I can SFU or TURN. I am not interested in RealtimeKit since it does not have a free tier.
+
+---
+
+- My primary goal is to pass text or voice input so using the MediaRecorder API native to the browser, then using Cloudflare's Whisper AI model to convert it to text and finally have the Llama 3 model return the response sounds like a good solution. However, I would like to learn and use Realtime for gaining some knowledge. How much of a scope creep would it be to use TURN with Realtime SFU to have multiple users join and speak to an AI agent? So that's two features, first and primary one would be the chat/voice input using MediaRecorder, Whisper AI and Llama 3 and the secondary feature would be a feature where a conversation with the AI model can be a meeting room type session for more than one user to join and talk to the AI model.
+
+---
+
+- I would like to tackle the primary feature first. Then, I'd like to look into the audio only chat room and integrate that with the existing primary feature of audio/text input. So let's start implementing the primary feature, step by step with the existing code and infrastrucutre.

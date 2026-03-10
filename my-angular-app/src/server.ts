@@ -20,25 +20,55 @@ export const reqHandler = createRequestHandler(async (req) => {
 	return res ?? new Response('Page not found.', { status: 404 });
 });
 
-// 2. Export a custom fetch handler for Cloudflare
 export default {
 	async fetch(request: Request, env: AppEnv) {
 		const url = new URL(request.url);
 
-		// 3. Intercept the AI API request BEFORE it hits Angular
 		if (url.pathname === '/api/ai' && request.method === 'POST') {
 			try {
-				const body = await request.json() as { prompt: string };
-				const userPrompt = body.prompt || 'Hello!';
+				const contentType = request.headers.get('content-type') || '';
+				let userPrompt = '';
+				let isAudio = false;
+
+				if (contentType.includes('multipart/form-data')) {
+					isAudio = true;
+					const formData = await request.formData();
+					const audioFile = formData.get('audio') as File;
+
+					if (!audioFile) {
+						return new Response(JSON.stringify({
+							error: 'No audio file found'
+						}), { status: 400 });
+					}
+
+					// Whisper expects an array of numbers (bytes)
+					const audioBuffer = await audioFile.arrayBuffer();
+					const audioArray = [...new Uint8Array(audioBuffer)];
+
+					// Run Whisper AI to get the transcript
+					const transcriptResponse = await env.AI.run('@cf/openai/whisper', {
+						audio: audioArray,
+					});
+
+					userPrompt = transcriptResponse.text;
+				} else {
+					// Handle standard text JSON
+					const body = await request.json() as { prompt: string };
+					userPrompt = body.prompt || 'Hello!';
+				}
 
 				// Access the AI binding from the environment
 				const aiResponse = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
-					prompt: userPrompt,
+					prompt: userPrompt
 				});
 
-				return new Response(JSON.stringify(aiResponse), {
+				return new Response(JSON.stringify({
+					response: aiResponse.response,
+					transcript: isAudio ? userPrompt : null
+				}), {
 					headers: { 'Content-Type': 'application/json' },
 				});
+
 			} catch (error) {
 				console.error('AI Request failed:', error);
 				return new Response(JSON.stringify({ error: 'AI processing failed' }), {
@@ -47,8 +77,6 @@ export default {
 				});
 			}
 		}
-
-		// 4. Fallback to Angular's SSR handler for all other routes (like webpages)
 		return reqHandler(request);
 	}
 };

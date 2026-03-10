@@ -1,10 +1,24 @@
-<div style="font-family: sans-serif; padding: 20px;">
-  <h2>Cloudflare AI Binding Test</h2>
-  
-  <p><strong>Prompt:</strong> {{ testPrompt() }}</p>
+<div style="font-family: sans-serif; padding: 20px; max-width: 600px;">
+  <h2>Voice & Text AI Assistant</h2>
+
+  <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+    <button
+      (click)="toggleRecording()"
+      [style.background]="isRecording() ? '#dc3545' : '#198754'"
+      style="color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+      {{ isRecording() ? 'Stop Recording' : 'Start Recording' }}
+    </button>
+  </div>
+
   <p><strong>Status:</strong> {{ status() }}</p>
-  
-  <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px;">
+
+  @if (transcript()) {
+    <div style="margin-top: 10px; padding: 10px; background: #e9ecef; border-left: 4px solid #6c757d;">
+      <small><strong>You said:</strong> {{ transcript() }}</small>
+    </div>
+  }
+
+  <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px; min-height: 100px;">
     <strong>Response:</strong>
     <p style="white-space: pre-wrap;">{{ aiResponse() }}</p>
   </div>
