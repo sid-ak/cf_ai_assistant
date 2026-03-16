@@ -2,7 +2,7 @@
 import { AngularAppEngine, createRequestHandler } from '@angular/ssr';
 
 const angularApp = new AngularAppEngine({
-	allowedHosts: ['localhost'],
+	allowedHosts: ['localhost', 'my-angular-app.sidharthak25.workers.dev'],
 });
 
 export const reqHandler = createRequestHandler(async (req) => {

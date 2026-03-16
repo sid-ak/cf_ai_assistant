@@ -122,3 +122,7 @@ Load chat history if it exists on initialization of the component instead of sta
 - Let's focus on UI improvements. Make the interface as close as you can to a chatgpt/gemini style interface with auto scroll to latest request response. Chat centered to screen and the recording text input right at the bottom.
 
 ---
+
+Let's deploy the project
+
+---
