@@ -115,7 +115,7 @@ export default { fetch: reqHandler };
 
 ---
 
-Load chat history if it exists on initialization of the component instead of starting with empty history.
+- Load chat history if it exists on initialization of the component instead of starting with empty history.
 
 ---
 
@@ -123,6 +123,4 @@ Load chat history if it exists on initialization of the component instead of sta
 
 ---
 
-Let's deploy the project
-
----
+- Let's deploy the project
