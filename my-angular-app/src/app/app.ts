@@ -1,22 +1,43 @@
 import { Component, inject, signal } from '@angular/core';
-import { AiService } from './services/ai'; // Adjust path if necessary
+import { AiService } from './services/ai';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
+  imports: [FormsModule]
 })
 export class App {
   private aiService = inject(AiService);
 
+  textPrompt = signal('');
   aiResponse = signal('');
   transcript = signal('');
   status = signal('Ready');
+  
   isRecording = signal(false);
+  isProcessing = signal(false);
 
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
 
+  submitText() {
+    const promptText = this.textPrompt().trim();
+    if (!promptText) return;
+
+    this.isProcessing.set(true);
+    this.status.set("Processing...");
+    this.transcript.set('');
+    this.aiResponse.set('');
+    this.textPrompt.set('');
+
+    this.aiService.ask(promptText).subscribe({
+      next: (res) => this.handleSuccess(res.response, promptText),
+      error: (err) => this.handleError(err)
+    });
+  }
+  
   async toggleRecording() {
     if (this.isRecording()) {
       this.stopRecording();
@@ -65,18 +86,29 @@ export class App {
     }
   }
 
-  private processAudio(audioBlob: Blob) {
+private processAudio(audioBlob: Blob) {
     this.aiService.askAudio(audioBlob).subscribe({
-      next: (res) => {
-        this.transcript.set(res.transcript || '');
-        this.aiResponse.set(res.response);
-        this.status.set('Success');
-      },
-      error: (err) => {
-        console.error('API Error:', err);
-        this.aiResponse.set('Request failed.');
-        this.status.set('Failed');
-      }
+      next: (res) => this.handleSuccess(res.response, res.transcript || '', true),
+      error: (err) => this.handleError(err)
     });
+  }
+
+  private handleSuccess(response: string, transcriptText: string, isVoice = false) {
+    this.aiResponse.set(response);
+    if (isVoice) {
+      this.transcript.set(transcriptText);
+    } else {
+      // For text requests, we can just echo what they typed as the "transcript"
+      this.transcript.set(transcriptText);
+    }
+    this.status.set('Success!');
+    this.isProcessing.set(false);
+  }
+
+  private handleError(err: any) {
+    console.error('API Error:', err);
+    this.aiResponse.set('Request failed. Check console for details.');
+    this.status.set('Failed');
+    this.isProcessing.set(false);
   }
 }

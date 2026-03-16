@@ -88,3 +88,17 @@ export default { fetch: reqHandler };
 ---
 
 - I would like to tackle the primary feature first. Then, I'd like to look into the audio only chat room and integrate that with the existing primary feature of audio/text input. So let's start implementing the primary feature, step by step with the existing code and infrastrucutre.
+
+---
+
+- Implement text input.
+
+---
+
+- Always separate html in its own file, app.html
+
+---
+
+- Split the AI status and response pane to the right of the page and keep the text and voice input on the left, effectively splitting the screen into two sections. Make the right side with AI status, voice transcript and response wider to accommodate more of the response.
+
+---

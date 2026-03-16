@@ -1,25 +1,68 @@
-<div style="font-family: sans-serif; padding: 20px; max-width: 600px;">
-  <h2>Voice & Text AI Assistant</h2>
+<div style="font-family: sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto;">
+  <h2 style="text-align: center; margin-bottom: 30px;">Voice & Text AI Assistant</h2>
+  
+  <div style="display: flex; gap: 30px; align-items: flex-start;">
+    
+    <div style="flex: 1; background: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #eaeaea; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+      
+      <div style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px;">
+        <label for="textPrompt"><strong>Ask via Text:</strong></label>
+        <textarea 
+          id="textPrompt"
+          [(ngModel)]="textPrompt" 
+          rows="4" 
+          placeholder="Type your question here..."
+          style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: inherit; resize: vertical;">
+        </textarea>
+        <button 
+          (click)="submitText()" 
+          [disabled]="isProcessing() || !textPrompt().trim()"
+          style="padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+          Send Text
+        </button>
+      </div>
 
-  <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-    <button
-      (click)="toggleRecording()"
-      [style.background]="isRecording() ? '#dc3545' : '#198754'"
-      style="color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-      {{ isRecording() ? 'Stop Recording' : 'Start Recording' }}
-    </button>
-  </div>
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;" />
 
-  <p><strong>Status:</strong> {{ status() }}</p>
-
-  @if (transcript()) {
-    <div style="margin-top: 10px; padding: 10px; background: #e9ecef; border-left: 4px solid #6c757d;">
-      <small><strong>You said:</strong> {{ transcript() }}</small>
+      <div>
+        <p style="margin-bottom: 10px;"><strong>Ask via Voice:</strong></p>
+        <button 
+          (click)="toggleRecording()" 
+          [disabled]="isProcessing() && !isRecording()"
+          [style.background]="isRecording() ? '#dc3545' : '#198754'"
+          style="width: 100%; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px;">
+          {{ isRecording() ? 'Stop Recording' : 'Start Recording' }}
+        </button>
+      </div>
     </div>
-  }
 
-  <div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px; min-height: 100px;">
-    <strong>Response:</strong>
-    <p style="white-space: pre-wrap;">{{ aiResponse() }}</p>
+    <div style="flex: 2; display: flex; flex-direction: column; gap: 15px;">
+      
+      <div style="padding: 12px 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px; display: flex; align-items: center; gap: 10px;">
+        <strong>Status:</strong> 
+        <span [style.color]="status().includes('Failed') ? '#dc3545' : status().includes('Success') ? '#198754' : '#6c757d'">
+          {{ status() }}
+        </span>
+      </div>
+      
+      @if (transcript()) {
+        <div style="padding: 15px; background: #e9ecef; border-left: 4px solid #6c757d; border-radius: 0 5px 5px 0;">
+          <small style="color: #495057; text-transform: uppercase; font-weight: bold;">What you asked</small>
+          <p style="margin: 5px 0 0 0; color: #212529;">{{ transcript() }}</p>
+        </div>
+      }
+      
+      <div style="padding: 20px; background: #ffffff; border: 1px solid #ddd; border-top: 4px solid #007bff; border-radius: 5px; min-height: 250px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <strong style="color: #007bff; text-transform: uppercase; font-size: 14px;">AI Response</strong>
+        <p style="white-space: pre-wrap; margin-top: 15px; line-height: 1.6; color: #333;">
+          @if (aiResponse()) {
+            {{ aiResponse() }}
+          } @else {
+            <span style="color: #aaa; font-style: italic;">The AI's response will appear here...</span>
+          }
+        </p>
+      </div>
+
+    </div>
   </div>
 </div>
