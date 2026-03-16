@@ -5,7 +5,6 @@
       <span style="font-weight: 600;">Cloudflare Workers AI Assistant</span>
     </div>
     <div style="display: flex; align-items: center; gap: 15px;">
-      <span style="color: #666; font-size: 13px;">{{ status() }}</span>
       <button (click)="clearHistory()" style="background: none; border: 1px solid #ccc; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;">
         Clear Chat
       </button>
@@ -31,7 +30,7 @@
           }
 
           <div class="bubble" [class]="msg.role === 'user' ? 'user' : 'ai'">
-            {{ msg.content }}
+            <span>{{ msg.content }}</span>
           </div>
           
         </div>
@@ -45,16 +44,16 @@
       <textarea 
         [(ngModel)]="textPrompt" 
         rows="1" 
-        placeholder="Message..."
+        [placeholder]="status()"
         (keyup.enter)="submitText()"
-        [disabled]="isProcessing() && !isRecording()">
+        [disabled]="isProcessing() || isRecording()">
       </textarea>
 
       <button 
         class="action-btn btn-mic" 
         [class.recording]="isRecording()"
         (click)="toggleRecording()"
-        [disabled]="isProcessing() && !isRecording()"
+        [disabled]="isProcessing()"
         title="Ask via Voice">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
@@ -66,7 +65,7 @@
       <button 
         class="action-btn btn-send" 
         (click)="submitText()"
-        [disabled]="isProcessing() || !textPrompt().trim()"
+        [disabled]="isProcessing() || !textPrompt().trim() || isRecording()"
         title="Send Message">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="22" y1="2" x2="11" y2="13"></line>

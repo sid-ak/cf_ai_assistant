@@ -17,7 +17,7 @@ export class App implements OnInit, AfterViewChecked {
   textPrompt = signal('');
   aiResponse = signal('');
   transcript = signal('');
-  status = signal('Ready');
+  status = signal('');
 
   isRecording = signal(false);
   isProcessing = signal(false);
@@ -117,11 +117,12 @@ export class App implements OnInit, AfterViewChecked {
     if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
       this.mediaRecorder.stop();
       this.isRecording.set(false);
-      this.status.set('Processing audio via Whisper & Llama...');
+      this.status.set('Processing...');
     }
   }
 
   private processAudio(audioBlob: Blob) {
+    this.isProcessing.set(true);
     this.aiService.askAudio(audioBlob).subscribe({
       next: (res) => this.handleSuccess(res.history, res.transcript || '', true),
       error: (err) => this.handleError(err)
@@ -133,7 +134,6 @@ export class App implements OnInit, AfterViewChecked {
     this.aiService.clearHistory().subscribe(() => {
       this.chatHistory.set([]);
       this.transcript.set('');
-      this.status.set('History cleared!');
     });
   }
 
@@ -145,7 +145,7 @@ export class App implements OnInit, AfterViewChecked {
       // For text requests, we can just echo what they typed as the "transcript"
       this.transcript.set(transcriptText);
     }
-    this.status.set('Success!');
+    this.status.set('Ready');
     this.isProcessing.set(false);
   }
 
