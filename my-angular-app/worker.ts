@@ -17,6 +17,8 @@ export class ChatHistory extends DurableObject {
 		const messages = await this.getHistory();
 		messages.push({ role, content });
 		await this.ctx.storage.put('messages', messages);
+		const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+		await this.ctx.storage.setAlarm(Date.now() + ONE_DAY_MS);
 		return messages;
 	}
 
@@ -24,16 +26,20 @@ export class ChatHistory extends DurableObject {
 		await this.ctx.storage.delete('messages');
 		return [];
 	}
+
+	override async alarm() {
+		console.log('Inactive for one day, deleting chat history.');
+		await this.ctx.storage.deleteAll();
+	}
 }
 
 // 3. The Worker Fetch Handler
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const url = new URL(request.url);
-
-		// Initialize the DO Stub
-		const id = env.CHAT_HISTORY.idFromName('global-session');
-		const chatStub = env.CHAT_HISTORY.get(id);
+        const sessionId = request.headers.get('x-session-id') || 'default-session';
+        const id = env.CHAT_HISTORY.idFromName(sessionId);
+        const chatStub = env.CHAT_HISTORY.get(id);
 
 		// Handle Clear History API
 		if (url.pathname === '/api/ai/history' && request.method === 'DELETE') {
