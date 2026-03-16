@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { AiService, ChatMessage } from './services/ai';
 import { FormsModule } from '@angular/forms';
 
@@ -8,9 +8,11 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './app.scss',
   imports: [FormsModule]
 })
-export class App implements OnInit {
+export class App implements OnInit, AfterViewChecked {
 
   private aiService = inject(AiService);
+
+  @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
   textPrompt = signal('');
   aiResponse = signal('');
@@ -34,6 +36,7 @@ export class App implements OnInit {
         this.chatHistory.set(res.history || []);
         this.status.set('Ready');
         this.isProcessing.set(false);
+        this.scrollToBottom();
       },
       error: (err) => {
         console.error('Failed to load history:', err);
@@ -41,6 +44,17 @@ export class App implements OnInit {
         this.isProcessing.set(false);
       }
     });
+  }
+
+  // Auto-scroll hook
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  private scrollToBottom(): void {
+    try {
+      this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
+    } catch(err) { }
   }
 
   submitText() {

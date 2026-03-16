@@ -1,77 +1,78 @@
-<div style="font-family: sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto;">
-  <h2 style="text-align: center; margin-bottom: 30px;">Voice & Text AI Assistant</h2>
+<div class="app-container">
   
-  <div style="display: flex; gap: 30px; align-items: flex-start;">
-    
-    <div style="flex: 1; background: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #eaeaea; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-      
-      <div style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px;">
-        <label for="textPrompt"><strong>Ask via Text:</strong></label>
-        <textarea 
-          id="textPrompt"
-          [(ngModel)]="textPrompt" 
-          rows="4" 
-          placeholder="Type your question here..."
-          style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: inherit; resize: vertical;">
-        </textarea>
-        <button 
-          (click)="submitText()" 
-          [disabled]="isProcessing() || !textPrompt().trim()"
-          style="padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-          Send Text
-        </button>
-      </div>
-
-      <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;" />
-
-      <div>
-        <p style="margin-bottom: 10px;"><strong>Ask via Voice:</strong></p>
-        <button 
-          (click)="toggleRecording()" 
-          [disabled]="isProcessing() && !isRecording()"
-          [style.background]="isRecording() ? '#dc3545' : '#198754'"
-          style="width: 100%; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px;">
-          {{ isRecording() ? 'Stop Recording' : 'Start Recording' }}
-        </button>
-      </div>
+  <div class="top-bar">
+    <div>
+      <span style="font-weight: 600;">Cloudflare Workers AI Assistant</span>
     </div>
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <span style="color: #666; font-size: 13px;">{{ status() }}</span>
+      <button (click)="clearHistory()" style="background: none; border: 1px solid #ccc; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+        Clear Chat
+      </button>
+    </div>
+  </div>
 
-    <div style="flex: 2; display: flex; flex-direction: column; gap: 15px;">
+  <div class="chat-container" #scrollContainer>
+    <div class="message-wrapper">
       
-      <div style="padding: 12px 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; gap: 10px;">
-          <strong>Status:</strong> 
-          <span [style.color]="status().includes('Failed') ? '#dc3545' : status().includes('Success') ? '#198754' : '#6c757d'">
-            {{ status() }}
-          </span>
+      @if (chatHistory().length === 0 && !isProcessing()) {
+        <div style="text-align: center; margin-top: 20vh;">
+          <h2 style="font-weight: 500; font-size: 24px; color: #333;">How can I help you today?</h2>
         </div>
-        <button (click)="clearHistory()" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;">
-          Clear History
-        </button>
-      </div>
-      
-      <div style="padding: 20px; background: #ffffff; border: 1px solid #ddd; border-top: 4px solid #007bff; border-radius: 5px; height: 500px; overflow-y: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 15px;">
-        
-        @if (chatHistory().length === 0) {
-          <div style="text-align: center; color: #aaa; font-style: italic; margin-top: 50px;">
-            The AI's response will appear here... Send a message to start!
-          </div>
-        }
+      }
 
-        @for (msg of chatHistory(); track $index) {
-          <div [style.align-self]="msg.role === 'user' ? 'flex-end' : 'flex-start'"
-               [style.background]="msg.role === 'user' ? '#007bff' : '#f8f9fa'"
-               [style.color]="msg.role === 'user' ? '#ffffff' : '#333333'"
-               [style.border]="msg.role === 'user' ? 'none' : '1px solid #e9ecef'"
-               style="padding: 15px; border-radius: 8px; max-width: 85%; white-space: pre-wrap; line-height: 1.6;">
-            <strong [style.color]="msg.role === 'user' ? '#cce5ff' : '#007bff'" style="display: block; margin-bottom: 8px; text-transform: uppercase; font-size: 12px;">
-              {{ msg.role === 'user' ? 'You' : 'AI Response' }}
-            </strong>
+      @for (msg of chatHistory(); track $index) {
+        <div class="message-row" [class]="msg.role === 'user' ? 'user' : 'ai'">
+          
+          @if (msg.role !== 'user') {
+            <div style="width: 28px; height: 28px; border-radius: 50%; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; margin-top: 8px;">
+              AI
+            </div>
+          }
+
+          <div class="bubble" [class]="msg.role === 'user' ? 'user' : 'ai'">
             {{ msg.content }}
           </div>
-        }
-        
-      </div>
+          
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="input-container">
+    <div class="input-box">
+      
+      <textarea 
+        [(ngModel)]="textPrompt" 
+        rows="1" 
+        placeholder="Message..."
+        (keyup.enter)="submitText()"
+        [disabled]="isProcessing() && !isRecording()">
+      </textarea>
+
+      <button 
+        class="action-btn btn-mic" 
+        [class.recording]="isRecording()"
+        (click)="toggleRecording()"
+        [disabled]="isProcessing() && !isRecording()"
+        title="Ask via Voice">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+          <line x1="12" y1="19" x2="12" y2="22"></line>
+        </svg>
+      </button>
+
+      <button 
+        class="action-btn btn-send" 
+        (click)="submitText()"
+        [disabled]="isProcessing() || !textPrompt().trim()"
+        title="Send Message">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
 
     </div>
   </div>
