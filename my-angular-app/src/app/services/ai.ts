@@ -2,9 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-// The Llama 3 model returns a JSON object with a "response" string property
+export interface ChatMessage {
+  role: string;
+  content: string;
+}
+
 export interface AiResponse {
-  response: string;
+  history: ChatMessage[];
   transcript?: string;
 }
 
@@ -22,5 +26,13 @@ export class AiService {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'voice-memo.webm');
     return this.http.post<AiResponse>('/api/ai', formData);
+  }
+
+  clearHistory(): Observable<any> {
+    return this.http.delete('/api/ai/history');
+  }
+
+  getHistory(): Observable<AiResponse> {
+    return this.http.get<AiResponse>('/api/ai/history');
   }
 }

@@ -102,3 +102,19 @@ export default { fetch: reqHandler };
 - Split the AI status and response pane to the right of the page and keep the text and voice input on the left, effectively splitting the screen into two sections. Make the right side with AI status, voice transcript and response wider to accommodate more of the response.
 
 ---
+
+- Let's implement history with Durable Objects. Text and voice input/response history.
+
+---
+
+- [ERROR] Could not resolve "cloudflare:workers", src/server.ts:2:30:, 2 │ import { DurableObject } from "cloudflare:workers"; You can mark the path "cloudflare:workers" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle
+
+---
+
+- An error occurred while extracting routes. Only URLs with a scheme in: file, data, and node are supported by the default ESM loader. Received protocol 'cloudflare:'
+
+---
+
+Load chat history if it exists on initialization of the component instead of starting with empty history.
+
+---
