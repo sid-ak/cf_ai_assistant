@@ -13,6 +13,7 @@ export class App implements OnInit, AfterViewChecked {
   private aiService = inject(AiService);
 
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  @ViewChild('textInput') private textInput!: ElementRef<HTMLTextAreaElement>;
 
   textPrompt = signal('');
   aiResponse = signal('');
@@ -58,8 +59,19 @@ export class App implements OnInit, AfterViewChecked {
   }
 
   submitText() {
+    if (this.isRecording()) {
+      this.stopRecording();
+    }
+
     const promptText = this.textPrompt().trim();
     if (!promptText) return;
+
+    this.chatHistory.update(currentHistory => [
+      ...currentHistory, 
+      { role: 'user', content: promptText }
+    ]);
+
+    setTimeout(() => this.scrollToBottom(), 10);
 
     this.isProcessing.set(true);
     this.status.set("Processing...");
@@ -68,7 +80,9 @@ export class App implements OnInit, AfterViewChecked {
     this.textPrompt.set('');
 
     this.aiService.ask(promptText).subscribe({
-      next: (res) => this.handleSuccess(res.history, promptText),
+      next: (res) => {
+        this.handleSuccess(res.history, promptText);
+      },
       error: (err) => this.handleError(err)
     });
   }
@@ -131,10 +145,18 @@ export class App implements OnInit, AfterViewChecked {
 
   clearHistory() {
     this.status.set('Clearing history...');
-    this.aiService.clearHistory().subscribe(() => {
-      this.chatHistory.set([]);
-      this.transcript.set('');
+    this.aiService.clearHistory().subscribe({
+      next: () => this.handleSuccess([], ''),
+      error: (err) => this.handleError(err)
     });
+  }
+
+  private focusInput(): void {
+    setTimeout(() => {
+      try {
+        this.textInput.nativeElement.focus();
+      } catch(err) { }
+    }, 50);
   }
 
   private handleSuccess(history: ChatMessage[], transcriptText: string, isVoice = false) {
@@ -147,6 +169,7 @@ export class App implements OnInit, AfterViewChecked {
     }
     this.status.set('Ready');
     this.isProcessing.set(false);
+    this.focusInput();
   }
 
   private handleError(err: any) {
@@ -154,5 +177,6 @@ export class App implements OnInit, AfterViewChecked {
     this.aiResponse.set('Request failed. Check console for details.');
     this.status.set('Failed');
     this.isProcessing.set(false);
+    this.focusInput();
   }
 }
