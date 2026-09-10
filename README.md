@@ -7,7 +7,8 @@ This project is a real-time, stateful AI chat application built entirely on Clou
 ## Core Components
 
 * **1. LLM (Large Language Model):**
-  * Uses Cloudflare Workers AI to run Meta's `Llama 3` for text responses and OpenAI's `Whisper` for audio transcription directly at the edge.
+  * Uses Cloudflare Workers AI to run a Meta Llama instruct model for text responses and OpenAI's `Whisper` for audio transcription directly at the edge.
+  * The text model is configurable, not hardcoded — see [Configuration](#configuration) below.
 
 * **2. Workflow / Coordination:**
   * A Cloudflare Worker serves as the central orchestrator, routing HTTP requests, handling multipart audio files, and sequencing the AI models.
@@ -17,6 +18,27 @@ This project is a real-time, stateful AI chat application built entirely on Clou
 
 * **4. Memory / State:**
   * Cloudflare Durable Objects (SQLite backend) provide isolated session histories tied to unique user UUIDs, utilizing the Alarms API for automatic self-deletion of abandoned chats.
+
+## Configuration
+
+The chat LLM model id is set via the `AI_MODEL` variable in `my-angular-app/wrangler.jsonc`:
+
+```jsonc
+"vars": {
+	"AI_MODEL": "@cf/meta/llama-3.1-8b-instruct-fast"
+}
+```
+
+To switch models, edit this value and redeploy — no code change needed. Check a model's id and
+deprecation status at [developers.cloudflare.com/workers-ai/models](https://developers.cloudflare.com/workers-ai/models/)
+before switching; Cloudflare periodically retires older models (e.g. `@cf/meta/llama-3-8b-instruct`
+reached end-of-life on 2026-05-30), and a retired model id causes `/api/ai` requests to fail.
+
+After editing `wrangler.jsonc`, regenerate types so `env.AI_MODEL` stays typed:
+
+```bash
+npm run cf-typegen
+```
 
 ## Local Development & Deployment
 

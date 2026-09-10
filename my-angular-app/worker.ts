@@ -81,7 +81,8 @@ export default {
 				await chatStub.addMessage('user', userPrompt);
 				const history = await chatStub.getHistory();
 
-				const aiResponse = await env.AI.run('@cf/meta/llama-3-8b-instruct', { messages: history });
+				const model = (env.AI_MODEL || '@cf/meta/llama-3.1-8b-instruct-fast') as keyof AiModels;
+				const aiResponse = await env.AI.run(model, { messages: history }) as { response?: string };
 
 				await chatStub.addMessage('assistant', aiResponse.response?.trim());
 				const updatedHistory = await chatStub.getHistory();
@@ -92,8 +93,9 @@ export default {
 				}), { headers: { 'Content-Type': 'application/json' } });
 
 			} catch (error) {
-				console.error('AI Request failed:', error);
-				return new Response(JSON.stringify({ error: 'AI processing failed' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+				const message = error instanceof Error ? error.message : String(error);
+				console.error('AI Request failed:', message);
+				return new Response(JSON.stringify({ error: 'AI processing failed', message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
 			}
 		}
 
