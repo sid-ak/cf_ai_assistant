@@ -63,14 +63,13 @@
   <div class="input-container">
     <div class="input-box">
       
-      <textarea 
+      <textarea
         #textInput
-        [(ngModel)]="textPrompt" 
-        rows="1" 
+        [(ngModel)]="textPrompt"
+        rows="1"
         [placeholder]="status()"
         (keyup.enter)="submitText()"
-        [disabled]="isProcessing() || isRecording()">
-      </textarea>
+        [disabled]="isProcessing() || isRecording()"></textarea>
 
       <button 
         class="action-btn btn-mic" 
