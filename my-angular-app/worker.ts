@@ -82,7 +82,8 @@ export default {
 				const history = await chatStub.getHistory();
 
 				const model = (env.AI_MODEL || '@cf/meta/llama-3.1-8b-instruct-fast') as keyof AiModels;
-				const aiResponse = await env.AI.run(model, { messages: history }) as { response?: string };
+				const maxTokens = Number(env.AI_MAX_TOKENS) || 2048;
+				const aiResponse = await env.AI.run(model, { messages: history, max_tokens: maxTokens }) as { response?: string };
 
 				await chatStub.addMessage('assistant', aiResponse.response?.trim());
 				const updatedHistory = await chatStub.getHistory();

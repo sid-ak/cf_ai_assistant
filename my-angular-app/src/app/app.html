@@ -52,7 +52,11 @@
           }
 
           <div class="bubble" [class]="msg.role === 'user' ? 'user' : 'ai'">
-            <span>{{ msg.content }}</span>
+            @if (msg.role === 'user') {
+              <span>{{ msg.content }}</span>
+            } @else {
+              <div class="markdown-content" [innerHTML]="renderMarkdown(msg.content)"></div>
+            }
           </div>
           
         </div>
