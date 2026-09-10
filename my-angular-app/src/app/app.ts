@@ -1,6 +1,9 @@
 import { Component, inject, signal, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { AiService, ChatMessage } from './services/ai';
 import { FormsModule } from '@angular/forms';
+import { marked } from 'marked';
+
+marked.setOptions({ breaks: true });
 
 @Component({
   selector: 'app-root',
@@ -147,6 +150,10 @@ export class App implements OnInit, AfterViewChecked {
       next: (res) => this.handleSuccess(res.history, res.transcript || '', true),
       error: (err) => this.handleError(err)
     });
+  }
+
+  renderMarkdown(content: string): string {
+    return marked.parse(content, { async: false });
   }
 
   toggleTheme() {

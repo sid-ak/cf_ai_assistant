@@ -52,7 +52,8 @@
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
 	 */
 	"vars": {
-		"AI_MODEL": "@cf/meta/llama-3.1-8b-instruct-fast"
+		"AI_MODEL": "@cf/meta/llama-3.1-8b-instruct-fast",
+		"AI_MAX_TOKENS": "2048"
 	}
 	/**
 	 * Service Bindings (communicate between multiple Workers)
