@@ -1,11 +1,45 @@
+/* Theme tokens — dark is the default palette; .light-mode overrides it */
+.app-container {
+  --bg: #212121;
+  --bg-elevated: #2a2a2a;
+  --text: #ececec;
+  --text-secondary: #9b9b9b;
+  --border: #3a3a3a;
+  --bubble-user-bg: #2f2f2f;
+  --input-bg: #2f2f2f;
+  --btn-secondary-bg: #3a3a3a;
+  --btn-secondary-hover: #454545;
+  --btn-mic-bg: #3a3a3a;
+  --accent-bg: #ececec;
+  --accent-fg: #101010;
+  --scrollbar-thumb: #4a4a4a;
+
+  &.light-mode {
+    --bg: #ffffff;
+    --bg-elevated: #ffffff;
+    --text: #0f0f0f;
+    --text-secondary: #666666;
+    --border: #e5e5e5;
+    --bubble-user-bg: #f4f4f4;
+    --input-bg: #f4f4f4;
+    --btn-secondary-bg: transparent;
+    --btn-secondary-hover: #f0f0f0;
+    --btn-mic-bg: #e5e5e5;
+    --accent-bg: #000000;
+    --accent-fg: #ffffff;
+    --scrollbar-thumb: #cccccc;
+  }
+}
+
 /* Base structural styles */
 .app-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #ffffff;
+  background-color: var(--bg);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: #0f0f0f;
+  color: var(--text);
+  transition: background-color 0.2s, color 0.2s;
 }
 
 /* Header Bar */
@@ -14,10 +48,34 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 24px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e5e5;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
   font-size: 14px;
   z-index: 10;
+}
+
+.btn-toggle {
+  background: var(--btn-secondary-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+
+  &:hover {
+    background: var(--btn-secondary-hover);
+  }
+}
+
+.empty-state-heading {
+  font-weight: 500;
+  font-size: 24px;
+  color: var(--text-secondary);
 }
 
 /* Scrollable Chat Area */
@@ -28,15 +86,15 @@
   scroll-behavior: smooth;
 
   /* Scrollbar styling */
-  &::-webkit-scrollbar { 
-    width: 8px; 
+  &::-webkit-scrollbar {
+    width: 8px;
   }
-  &::-webkit-scrollbar-track { 
-    background: transparent; 
+  &::-webkit-scrollbar-track {
+    background: transparent;
   }
-  &::-webkit-scrollbar-thumb { 
-    background: #ccc; 
-    border-radius: 4px; 
+  &::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
   }
 }
 
@@ -55,11 +113,11 @@
   display: flex;
   gap: 16px;
 
-  &.user { 
-    justify-content: flex-end; 
+  &.user {
+    justify-content: flex-end;
   }
-  &.ai { 
-    justify-content: flex-start; 
+  &.ai {
+    justify-content: flex-start;
   }
 }
 
@@ -73,13 +131,13 @@
   white-space: pre-wrap;
 
   &.user {
-    background-color: #f4f4f4;
-    color: #0f0f0f;
+    background-color: var(--bubble-user-bg);
+    color: var(--text);
     border-bottom-right-radius: 4px;
   }
   &.ai {
     background-color: transparent;
-    color: #0f0f0f;
+    color: var(--text);
   }
 }
 
@@ -89,20 +147,20 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 40%);
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, var(--bg) 40%);
   padding: 24px 20px;
 }
 
 .input-box {
   max-width: 768px;
   margin: 0 auto;
-  background: #f4f4f4;
+  background: var(--input-bg);
   border-radius: 24px;
   padding: 8px 16px;
   display: flex;
   align-items: flex-end;
   gap: 12px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--border);
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 
   textarea {
@@ -112,9 +170,14 @@
     padding: 12px 0;
     font-family: inherit;
     font-size: 15px;
+    color: var(--text);
     resize: none;
     outline: none;
     max-height: 150px;
+
+    &::placeholder {
+      color: var(--text-secondary);
+    }
   }
 }
 
@@ -128,28 +191,28 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  margin-bottom: 6px; 
+  margin-bottom: 6px;
   transition: all 0.2s;
 
-  &:disabled { 
-    opacity: 0.5; 
-    cursor: not-allowed; 
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
-  
-  &.btn-mic { 
-    background: #e5e5e5; 
-    color: #333; 
 
-    &.recording { 
-      background: #dc3545; 
-      color: white; 
-      animation: pulse 1.5s infinite; 
+  &.btn-mic {
+    background: var(--btn-mic-bg);
+    color: var(--text);
+
+    &.recording {
+      background: #dc3545;
+      color: white;
+      animation: pulse 1.5s infinite;
     }
   }
 
-  &.btn-send { 
-    background: #000000; 
-    color: white; 
+  &.btn-send {
+    background: var(--accent-bg);
+    color: var(--accent-fg);
   }
 }
 

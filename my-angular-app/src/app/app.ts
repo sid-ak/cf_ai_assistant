@@ -23,12 +23,18 @@ export class App implements OnInit, AfterViewChecked {
   isRecording = signal(false);
   isProcessing = signal(false);
 
+  isDarkMode = signal(true);
+
   chatHistory = signal<ChatMessage[]>([]);
 
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
 
   ngOnInit(): void {
+    try {
+      this.isDarkMode.set(localStorage.getItem('theme') !== 'light');
+    } catch (err) { }
+
     this.status.set('Loading history...');
     this.isProcessing.set(true);
 
@@ -141,6 +147,13 @@ export class App implements OnInit, AfterViewChecked {
       next: (res) => this.handleSuccess(res.history, res.transcript || '', true),
       error: (err) => this.handleError(err)
     });
+  }
+
+  toggleTheme() {
+    this.isDarkMode.update(dark => !dark);
+    try {
+      localStorage.setItem('theme', this.isDarkMode() ? 'dark' : 'light');
+    } catch (err) { }
   }
 
   clearHistory() {
