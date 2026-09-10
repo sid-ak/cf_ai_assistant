@@ -1,1 +1,78 @@
 /* You can add global styles to this file, and also import other style files */
+
+html, body {
+  margin: 0;
+  background-color: #212121; /* matches the dark-mode default so there's no white flash before hydration */
+}
+
+/* Rendered markdown inside AI chat bubbles (app.html, App.renderMarkdown()).
+   Global, not component-scoped: [innerHTML] content isn't covered by Angular's
+   emulated view encapsulation, so these rules wouldn't match it from app.scss. */
+.markdown-content {
+  white-space: normal;
+
+  > *:first-child { margin-top: 0; }
+  > *:last-child { margin-bottom: 0; }
+
+  p {
+    margin: 0 0 12px 0;
+  }
+
+  ul, ol {
+    margin: 0 0 12px 0;
+    padding-left: 22px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  strong {
+    font-weight: 700;
+  }
+
+  em {
+    font-style: italic;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  code {
+    font-family: "SF Mono", Consolas, Monaco, monospace;
+    font-size: 0.9em;
+    background-color: var(--bubble-user-bg);
+    padding: 2px 5px;
+    border-radius: 4px;
+  }
+
+  pre {
+    background-color: var(--bubble-user-bg);
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 0 0 12px 0;
+
+    code {
+      background: none;
+      padding: 0;
+    }
+  }
+
+  blockquote {
+    margin: 0 0 12px 0;
+    padding-left: 12px;
+    border-left: 3px solid var(--border);
+    color: var(--text-secondary);
+  }
+
+  h1, h2, h3 {
+    margin: 16px 0 8px 0;
+    font-weight: 600;
+
+    &:first-child { margin-top: 0; }
+  }
+}
+

@@ -1,6 +1,9 @@
 import { Component, inject, signal, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { AiService, ChatMessage } from './services/ai';
 import { FormsModule } from '@angular/forms';
+import { marked } from 'marked';
+
+marked.setOptions({ breaks: true });
 
 @Component({
   selector: 'app-root',
@@ -23,12 +26,18 @@ export class App implements OnInit, AfterViewChecked {
   isRecording = signal(false);
   isProcessing = signal(false);
 
+  isDarkMode = signal(true);
+
   chatHistory = signal<ChatMessage[]>([]);
 
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
 
   ngOnInit(): void {
+    try {
+      this.isDarkMode.set(localStorage.getItem('theme') !== 'light');
+    } catch (err) { }
+
     this.status.set('Loading history...');
     this.isProcessing.set(true);
 
@@ -141,6 +150,17 @@ export class App implements OnInit, AfterViewChecked {
       next: (res) => this.handleSuccess(res.history, res.transcript || '', true),
       error: (err) => this.handleError(err)
     });
+  }
+
+  renderMarkdown(content: string): string {
+    return marked.parse(content, { async: false });
+  }
+
+  toggleTheme() {
+    this.isDarkMode.update(dark => !dark);
+    try {
+      localStorage.setItem('theme', this.isDarkMode() ? 'dark' : 'light');
+    } catch (err) { }
   }
 
   clearHistory() {

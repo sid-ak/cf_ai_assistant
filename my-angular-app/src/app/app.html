@@ -1,11 +1,33 @@
-<div class="app-container">
-  
+<div class="app-container" [class.light-mode]="!isDarkMode()">
+
   <div class="top-bar">
     <div>
       <span style="font-weight: 600;">Cloudflare Workers AI Assistant</span>
     </div>
     <div style="display: flex; align-items: center; gap: 15px;">
-      <button (click)="clearHistory()" style="background: none; border: 1px solid #ccc; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;">
+      <button
+        class="btn-toggle"
+        (click)="toggleTheme()"
+        [title]="isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
+        @if (isDarkMode()) {
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        } @else {
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>
+          </svg>
+        }
+      </button>
+      <button class="btn-toggle" (click)="clearHistory()">
         Clear Chat
       </button>
     </div>
@@ -16,7 +38,7 @@
       
       @if (chatHistory().length === 0 && !isProcessing()) {
         <div style="text-align: center; margin-top: 20vh;">
-          <h2 style="font-weight: 500; font-size: 24px; color: #333;">How can I help you today?</h2>
+          <h2 class="empty-state-heading">How can I help you today?</h2>
         </div>
       }
 
@@ -30,7 +52,11 @@
           }
 
           <div class="bubble" [class]="msg.role === 'user' ? 'user' : 'ai'">
-            <span>{{ msg.content }}</span>
+            @if (msg.role === 'user') {
+              <span>{{ msg.content }}</span>
+            } @else {
+              <div class="markdown-content" [innerHTML]="renderMarkdown(msg.content)"></div>
+            }
           </div>
           
         </div>
@@ -41,14 +67,13 @@
   <div class="input-container">
     <div class="input-box">
       
-      <textarea 
+      <textarea
         #textInput
-        [(ngModel)]="textPrompt" 
-        rows="1" 
+        [(ngModel)]="textPrompt"
+        rows="1"
         [placeholder]="status()"
         (keyup.enter)="submitText()"
-        [disabled]="isProcessing() || isRecording()">
-      </textarea>
+        [disabled]="isProcessing() || isRecording()"></textarea>
 
       <button 
         class="action-btn btn-mic" 
